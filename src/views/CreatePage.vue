@@ -56,69 +56,46 @@
   </div>
 </template>
 
-<script>
-export default {
-  emits: {
-  pageCreated({pageTitle, content, link}) {
-    if (!pageTitle) return false;
-    if (!content) return false;
-    if (!link || !link.text || !link.url) return false;
-    return true;
-  }
-}
-,
-  //   props: ["pageCreated"],
-  computed: {
-    isFormInvalid() {
-      return (
-        !this.pageTitle || !this.content || !this.linkText || !this.linkUrl
-      );
-    },
-  },
-  data() {
-    return {
-      pageTitle: "",
-      content: "",
-      linkText: "",
-      linkUrl: "",
-      published: true,
-    };
-  },
-  methods: {
-    submitForm() {
-      if (!this.pageTitle || !this.content || !this.linkText || !this.linkUrl) {
+<script setup>
+import { computed, inject, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+
+let pageTitle = ref("");
+let content = ref("");
+let linkText = ref("");
+let linkUrl = ref("");
+let published = ref(true);
+
+const router = useRouter();
+const bus = inject('$bus');
+const pages = inject('$page');
+  function submitForm() {
+      if (!this.pageTitle || !this.content || !this.linkText ) {
         alert("Please fill in the form!");
         return;
       }
 
-      this.$emit("pageCreated");
-
-      this.pageCreated({
-        pageTitle: this.pageTitle,
-        content: this.content,
+      let newPage = {
+        pageTitle,
+        content,
         link: {
-          text: this.linkText,
-          url: this.linkUrl,
+          text: linkText
         },
-        published: this.published,
-      });
+        published,
+    }
+    pages.addPage(newPage);
+    bus.$emit('page-created', newPage)
+    router.push({path: '/pages'})
+}
 
-      (this.pageTitle = ""),
-        (this.content = ""),
-        (this.linkText = ""),
-        (this.linkUrl = ""),
-        (this.published = true);
-    },
-  },
-  watch: {
-    pageTitle(newTitle, oldTitle) {
-      if (this.linkText === oldTitle) {
-        this.linkText = newTitle;
+const isFormInvlid = computed(() => !pageTitle || !content || !linkText);
+watch(pageTitle, (newTitle, oldTitle) => {
+      if (linkText === oldTitle) {
+        linkText = newTitle;
       }
-    },
-  },
-};
+    },)
 </script>
+
 
 <style scoped>
 .page-form {

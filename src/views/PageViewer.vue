@@ -18,18 +18,22 @@ export default {
   //     }
   //   }
   // }
+  props: ['index'],
+  inject: ['$pages'],
   created() {
-    const index = this.$route.params.index;
-    console.log("Route index:", index);
-    const pageData = this.$pages.getSinglePage(index);
-    console.log("Page data:", pageData);
-    this.page = pageData || { pageTitle: "", content: "" };
+    this.page = this.$pages.getSinglePage(this.index);
   },
   data() {
     return {
       page: null,
     };
   },
+  watch: {
+      // eslint-disable-next-line no-unused-vars
+      index(newIndex, oldIndex) {
+        this.page = this.$pages.getSinglePage(newIndex)
+      }
+    }
 };
 </script>
 

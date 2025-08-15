@@ -22,17 +22,16 @@
             :key="index"
             :page="page"
             :index="index"
-            :isActive="index === activePage"
-            @activated="$emit('activated')"
           ></navbar-link>
           <!-- </li> -->
           <li>
             <router-link
-              to="/create"
+              to="/pages"
               class="nav-link"
+              active-class="active"
               aria-current="page"
             >
-              Create Page
+              Pages
             </router-link>
           </li>
         </ul>
@@ -68,14 +67,20 @@ export default {
   components: {
     NavbarLink,
   },
+  inject: ['$pages', '$bus'],
   created() {
     this.getThemeSetting();
+    this.pages = this.$pages.getAllPages();
+    this.$bus.$on('page-updated', () => {
+      this.pages = [...this.$pages.getAllPages()];
+    })
   },
 
-  props: ["pages", "activePage"],
+  // props: ["pages"],
   data() {
     return {
       theme: "light",
+      pages: []
     };
   },
   methods: {
@@ -86,7 +91,7 @@ export default {
       }
       this.theme = theme;
       this.storeThemeSetting();
-    },
+    }, 
     storeThemeSetting() {
       localStorage.setItem("theme", this.theme);
     },
